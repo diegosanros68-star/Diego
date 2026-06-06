@@ -1,0 +1,26 @@
+{
+  "name": "faga-muebleria",
+  "version": "1.0.0",
+  "description": "E-commerce revolucionario para Faga Mueblería con AR/3D y pago seguro",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "build": "npm run build --prefix frontend && npm run build --prefix backend",
+    "start": "concurrently \"npm start --prefix frontend\" \"npm start --prefix backend\"",
+    "test": "npm run test --prefix frontend && npm run test --prefix backend",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend"
+  },
+  "keywords": [
+    "ecommerce",
+    "furniture",
+    "ar",
+    "3d",
+    "nextjs",
+    "react"
+  ],
+  "author": "Diego",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
