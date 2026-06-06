@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Faga Mueblería — Transforma tu espacio con muebles de autor. Visualiza en AR, explora en 3D y compra con total seguridad." />
+  <title>Faga Mueblería — Diseña tu Espacio</title>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Model Viewer for AR/3D -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Swiper -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-logo">FAGA</div>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+      <p class="loader-text">Cargando experiencia...</p>
+    </div>
+  </div>
+
+  <!-- CURSOR CUSTOM -->
+  <div id="cursor"></div>
+  <div id="cursor-follower"></div>
+
+  <!-- NAVIGATION -->
+  <nav id="navbar">
+    <div class="nav-left">
+      <a href="#" class="logo">FAGA<span>mueblería</span></a>
+    </div>
+    <div class="nav-center">
+      <a href="#productos" class="nav-link">Catálogo</a>
+      <a href="#ar-experience" class="nav-link">Prueba AR</a>
+      <a href="#diseno" class="nav-link">Diseñador</a>
+      <a href="#nosotros" class="nav-link">Nosotros</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn-search" id="searchToggle" aria-label="Buscar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="nav-btn-wishlist" aria-label="Favoritos">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="cart-btn" id="cartToggle" aria-label="Carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="nav-menu-btn" id="menuToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" id="menuClose">✕</button>
+    <nav class="mobile-nav">
+      <a href="#productos" class="mobile-nav-link">Catálogo</a>
+      <a href="#ar-experience" class="mobile-nav-link">Prueba AR</a>
+      <a href="#diseno" class="mobile-nav-link">Diseñador</a>
+      <a href="#nosotros" class="mobile-nav-link">Nosotros</a>
+    </nav>
+  </div>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay">
+    <button class="search-close" id="searchClose">✕</button>
+    <div class="search-container">
+      <input type="text" class="search-input" id="searchInput" placeholder="Busca tu mueble ideal..." />
+      <div class="search-suggestions">
+        <span>Sofá</span><span>Mesa de comedor</span><span>Cama king</span><span>Estantería</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section id="hero">
+    <canvas id="heroCanvas"></canvas>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Nueva colección 2026 disponible
+      </div>
+      <h1 class="hero-title">
+        <span class="hero-line">Tu espacio,</span>
+        <span class="hero-line hero-line-italic">tu obra maestra</span>
+      </h1>
+      <p class="hero-subtitle">
+        Visualiza cada mueble en tu hogar con Realidad Aumentada antes de comprar. Diseño premium, entrega garantizada.
+      </p>
+      <div class="hero-actions">
+        <a href="#productos" class="btn-primary">
+          Explorar catálogo
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#ar-experience" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Ver en AR
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num" data-target="2400">0</span>
+          <span class="stat-label">Productos</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num" data-target="98">0</span><span class="stat-symbol">%</span>
+          <span class="stat-label">Satisfacción</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num" data-target="15">0</span>
+          <span class="stat-label">Años de experiencia</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-3d-container" id="hero3dContainer">
+      <div class="hero-3d-scene">
+        <canvas id="hero3dCanvas"></canvas>
+      </div>
+      <div class="hero-3d-controls">
+        <span class="rotate-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Arrastra para rotar
+        </span>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <span>Desliza</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- FEATURES STRIP -->
+  <section class="features-strip">
+    <div class="feature-item">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <div>
+        <strong>Visualización AR</strong>
+        <p>Ve el mueble en tu espacio real</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <div>
+        <strong>Visor 3D Interactivo</strong>
+        <p>Gira y explora cada detalle</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <div>
+        <strong>Pago 100% Seguro</strong>
+        <p>Encriptación SSL de grado bancario</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <div>
+        <strong>Envío Gratuito</strong>
+        <p>En compras mayores a $500</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categorias" class="categories-section">
+    <div class="section-header">
+      <span class="section-tag">Colecciones</span>
+      <h2>Encuentra tu estilo</h2>
+      <p>Desde lo minimalista hasta lo clásico, tenemos el mueble perfecto para tu espacio.</p>
+    </div>
+    <div class="categories-grid">
+      <div class="category-card cat-large" data-filter="sala" style="--cat-img: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80')">
+        <div class="cat-overlay">
+          <h3>Sala</h3>
+          <span>Ver colección →</span>
+        </div>
+      </div>
+      <div class="category-card" data-filter="dormitorio" style="--cat-img: url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80')">
+        <div class="cat-overlay">
+          <h3>Dormitorio</h3>
+          <span>Ver colección →</span>
+        </div>
+      </div>
+      <div class="category-card" data-filter="comedor" style="--cat-img: url('https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=800&q=80')">
+        <div class="cat-overlay">
+          <h3>Comedor</h3>
+          <span>Ver colección →</span>
+        </div>
+      </div>
+      <div class="category-card cat-wide" data-filter="oficina" style="--cat-img: url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=80')">
+        <div class="cat-overlay">
+          <h3>Oficina</h3>
+          <span>Ver colección →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS SECTION -->
+  <section id="productos" class="products-section">
+    <div class="section-header">
+      <span class="section-tag">Catálogo</span>
+      <h2>Nuestra colección</h2>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">Todos</button>
+        <button class="filter-tab" data-filter="sala">Sala</button>
+        <button class="filter-tab" data-filter="dormitorio">Dormitorio</button>
+        <button class="filter-tab" data-filter="comedor">Comedor</button>
+        <button class="filter-tab" data-filter="oficina">Oficina</button>
+      </div>
+      <div class="filter-sort">
+        <select id="sortSelect" class="sort-select">
+          <option value="featured">Destacados</option>
+          <option value="price-asc">Precio: Menor a Mayor</option>
+          <option value="price-desc">Precio: Mayor a Menor</option>
+          <option value="newest">Más Nuevos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PRODUCTS GRID -->
+    <div class="products-grid" id="productsGrid">
+      <!-- Products rendered by JS -->
+    </div>
+    <div class="load-more-container">
+      <button class="btn-load-more" id="loadMoreBtn">Cargar más productos</button>
+    </div>
+  </section>
+
+  <!-- AR EXPERIENCE SECTION -->
+  <section id="ar-experience" class="ar-section">
+    <div class="ar-content">
+      <div class="ar-text">
+        <span class="section-tag">Tecnología AR</span>
+        <h2>Pruébalo en tu hogar antes de comprar</h2>
+        <p>Nuestra tecnología de Realidad Aumentada te permite ver exactamente cómo quedará el mueble en tu espacio. Usa tu cámara y decide con certeza.</p>
+        <ul class="ar-features">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Escala real en tu espacio
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Compatible con iOS y Android
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Más de 500 modelos 3D disponibles
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Personaliza colores y materiales
+          </li>
+        </ul>
+        <button class="btn-primary" id="launchArBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Lanzar experiencia AR
+        </button>
+      </div>
+      <div class="ar-preview" id="arPreview">
+        <div class="ar-phone-mockup">
+          <div class="phone-screen">
+            <div class="ar-room-bg"></div>
+            <div class="ar-furniture-overlay" id="arFurnitureOverlay">
+              <div class="ar-sofa"></div>
+            </div>
+            <div class="ar-ui-overlay">
+              <div class="ar-target-ring"></div>
+              <p class="ar-instruction">Apunta al suelo para colocar el mueble</p>
+            </div>
+          </div>
+          <div class="phone-notch"></div>
+        </div>
+        <div class="ar-color-picker">
+          <span>Cambia el color:</span>
+          <button class="color-swatch active" data-color="beige" style="background:#d4b896" aria-label="Beige"></button>
+          <button class="color-swatch" data-color="gray" style="background:#8d8d8d" aria-label="Gris"></button>
+          <button class="color-swatch" data-color="navy" style="background:#2c3e6b" aria-label="Azul marino"></button>
+          <button class="color-swatch" data-color="olive" style="background:#6b7c4b" aria-label="Verde oliva"></button>
+          <button class="color-swatch" data-color="terracotta" style="background:#c4603a" aria-label="Terracota"></button>
+        </div>
+      </div>
+    </div>
+    <div class="ar-bg-visual"></div>
+  </section>
+
+  <!-- 3D VIEWER SECTION -->
+  <section id="diseno" class="viewer-section">
+    <div class="section-header">
+      <span class="section-tag">Explorador 3D</span>
+      <h2>Cada ángulo, cada detalle</h2>
+      <p>Gira, acerca y explora la calidad de nuestros muebles en alta resolución.</p>
+    </div>
+    <div class="viewer-container">
+      <div class="viewer-sidebar">
+        <h3>Sofá Nórdico Oslo</h3>
+        <p class="viewer-price">$1,290 <span class="original-price">$1,590</span></p>
+        <div class="viewer-rating">
+          ★★★★★ <span>(124 reseñas)</span>
+        </div>
+        <div class="viewer-options">
+          <div class="option-group">
+            <label>Material</label>
+            <div class="option-btns">
+              <button class="opt-btn active">Tela</button>
+              <button class="opt-btn">Cuero</button>
+              <button class="opt-btn">Terciopelo</button>
+            </div>
+          </div>
+          <div class="option-group">
+            <label>Color</label>
+            <div class="viewer-colors">
+              <button class="vcolor active" style="background:#d4b896" title="Beige" aria-label="Beige"></button>
+              <button class="vcolor" style="background:#8d8d8d" title="Gris" aria-label="Gris"></button>
+              <button class="vcolor" style="background:#2c3e6b" title="Azul" aria-label="Azul"></button>
+              <button class="vcolor" style="background:#3a2c1e" title="Marrón" aria-label="Marrón"></button>
+            </div>
+          </div>
+          <div class="option-group">
+            <label>Medidas</label>
+            <div class="option-btns">
+              <button class="opt-btn active">2 plazas</button>
+              <button class="opt-btn">3 plazas</button>
+              <button class="opt-btn">Esquinero</button>
+            </div>
+          </div>
+        </div>
+        <div class="viewer-actions">
+          <button class="btn-primary add-to-cart-viewer" data-id="sofa-oslo" data-name="Sofá Nórdico Oslo" data-price="1290" data-img="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80">
+            Agregar al carrito
+          </button>
+          <button class="btn-ar-launch" onclick="openArModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Ver en AR
+          </button>
+        </div>
+      </div>
+      <div class="viewer-3d">
+        <canvas id="product3dCanvas"></canvas>
+        <div class="viewer-controls-hint">
+          <span>🖱 Arrastra para rotar · Scroll para zoom</span>
+        </div>
+        <div class="viewer-toolbar">
+          <button class="viewer-tool" id="resetView" title="Restablecer vista">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+          <button class="viewer-tool" id="toggleWireframe" title="Modo wireframe">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          </button>
+          <button class="viewer-tool" id="fullscreenView" title="Pantalla completa">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section">
+    <div class="section-header">
+      <span class="section-tag">Testimonios</span>
+      <h2>Lo que dicen nuestros clientes</h2>
+    </div>
+    <div class="swiper testimonials-swiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"La experiencia AR fue increíble. Vi el sofá exactamente en mi sala antes de comprarlo y quedó perfecto. Nunca más compraré muebles sin esta tecnología."</p>
+            <div class="testimonial-author">
+              <img src="https://i.pravatar.cc/60?img=5" alt="María G." />
+              <div>
+                <strong>María González</strong>
+                <span>Ciudad de México</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"El visor 3D me permitió ver cada costura del sofá. La calidad es exactamente como se muestra. El proceso de pago fue rapidísimo y muy seguro."</p>
+            <div class="testimonial-author">
+              <img src="https://i.pravatar.cc/60?img=12" alt="Carlos R." />
+              <div>
+                <strong>Carlos Rodríguez</strong>
+                <span>Guadalajara</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"Diseño hermoso, envío rápido y el sitio web es una obra de arte. La función de AR salvó mi sala. ¡Completamente recomendado!"</p>
+            <div class="testimonial-author">
+              <img src="https://i.pravatar.cc/60?img=25" alt="Ana M." />
+              <div>
+                <strong>Ana Martínez</strong>
+                <span>Monterrey</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"Pensé que sería complicado usar el AR, pero fue intuitivo y divertido. Probé 4 sofás distintos en mi sala desde el celular. Excelente tecnología."</p>
+            <div class="testimonial-author">
+              <img src="https://i.pravatar.cc/60?img=33" alt="Roberto L." />
+              <div>
+                <strong>Roberto López</strong>
+                <span>CDMX</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </section>
+
+  <!-- NOSOTROS SECTION -->
+  <section id="nosotros" class="about-section">
+    <div class="about-visual">
+      <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=700&q=80" alt="Taller Faga Mueblería" />
+      <div class="about-badge-float">
+        <strong>15</strong>
+        <span>años creando espacios</span>
+      </div>
+    </div>
+    <div class="about-content">
+      <span class="section-tag">Nuestra historia</span>
+      <h2>Artesanía que inspira, diseño que perdura</h2>
+      <p>En Faga Mueblería llevamos 15 años transformando espacios con muebles diseñados para durar generaciones. Cada pieza es creada con materiales seleccionados y el cuidado de artesanos expertos.</p>
+      <p>Nuestra misión es democratizar el diseño de interiores de lujo, ahora con tecnología de vanguardia que lleva la experiencia de compra a otro nivel.</p>
+      <div class="about-values">
+        <div class="value-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div><strong>Garantía de por vida</strong><p>En estructura y materiales</p></div>
+        </div>
+        <div class="value-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div><strong>Envío nacional</strong><p>A toda la república</p></div>
+        </div>
+        <div class="value-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div><strong>Soporte 24/7</strong><p>Siempre a tu disposición</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section">
+    <div class="newsletter-content">
+      <h2>Descubre las novedades primero</h2>
+      <p>Suscríbete y recibe acceso exclusivo a nuevas colecciones, descuentos y contenido de diseño.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="tu@email.com" required />
+        <button type="submit" class="btn-primary">Suscribirse</button>
+      </form>
+      <p class="newsletter-note">Sin spam, solo lo mejor de diseño e interiores.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">FAGA<span>mueblería</span></div>
+        <p>Transformamos espacios con diseño, tecnología y artesanía de clase mundial.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="Pinterest">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.23-5.2 1.23-5.2s-.31-.63-.31-1.56c0-1.46.85-2.55 1.9-2.55.9 0 1.34.67 1.34 1.48 0 .9-.58 2.26-.87 3.51-.25 1.05.52 1.9 1.55 1.9 1.86 0 3.29-1.96 3.29-4.79 0-2.5-1.8-4.25-4.37-4.25-2.98 0-4.72 2.23-4.72 4.54 0 .9.35 1.86.78 2.39.09.1.1.19.07.3-.08.33-.25 1.05-.29 1.19-.05.19-.16.23-.38.14-1.39-.65-2.26-2.68-2.26-4.32 0-3.51 2.55-6.74 7.35-6.74 3.86 0 6.86 2.75 6.86 6.42 0 3.83-2.41 6.9-5.76 6.9-1.13 0-2.18-.59-2.54-1.28l-.69 2.58c-.25.96-.93 2.17-1.39 2.9.05.01.1.01.14.01C17.52 22 22 17.52 22 12S17.52 2 12 2z"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.57A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Productos</h4>
+          <a href="#">Sala</a>
+          <a href="#">Dormitorio</a>
+          <a href="#">Comedor</a>
+          <a href="#">Oficina</a>
+          <a href="#">Exterior</a>
+        </div>
+        <div class="footer-col">
+          <h4>Servicios</h4>
+          <a href="#">Diseño de interiores</a>
+          <a href="#">Instalación</a>
+          <a href="#">Garantía</a>
+          <a href="#">Devoluciones</a>
+          <a href="#">Financiamiento</a>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <a href="#">Nosotros</a>
+          <a href="#">Blog</a>
+          <a href="#">Prensa</a>
+          <a href="#">Careers</a>
+          <a href="#">Contacto</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contáctanos</h4>
+          <p>📍 Av. Reforma 150, CDMX</p>
+          <p>📞 +52 55 1234 5678</p>
+          <p>✉ hola@fagamuebleria.mx</p>
+          <p>🕐 Lun-Sáb 9am - 8pm</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Faga Mueblería. Todos los derechos reservados.</p>
+      <div class="footer-legal">
+        <a href="#">Privacidad</a>
+        <a href="#">Términos</a>
+        <a href="#">Cookies</a>
+      </div>
+      <div class="payment-icons">
+        <span class="pay-icon">VISA</span>
+        <span class="pay-icon">MC</span>
+        <span class="pay-icon">AMEX</span>
+        <span class="pay-icon">PAYPAL</span>
+        <span class="pay-icon">OXXO</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Tu carrito <span id="cartItemsCount">(0 artículos)</span></h3>
+      <button class="cart-close" id="cartClose">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>Tu carrito está vacío</p>
+        <a href="#productos" class="btn-primary" id="cartContinue">Ver productos</a>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-summary">
+        <div class="summary-row"><span>Subtotal</span><span id="cartSubtotal">$0</span></div>
+        <div class="summary-row"><span>Envío</span><span class="free-shipping">GRATIS</span></div>
+        <div class="summary-row summary-total"><span>Total</span><span id="cartTotal">$0</span></div>
+      </div>
+      <button class="btn-primary btn-checkout" id="checkoutBtn">
+        Proceder al pago
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <p class="cart-security">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Pago 100% seguro y encriptado
+      </p>
+    </div>
+  </aside>
+
+  <!-- PRODUCT MODAL -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-inner" id="modalInner">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div class="checkout-overlay" id="checkoutModal">
+    <div class="checkout-container">
+      <button class="checkout-close" id="checkoutClose">✕</button>
+      <div class="checkout-header">
+        <div class="checkout-logo">FAGA<span>mueblería</span></div>
+        <div class="checkout-steps">
+          <div class="step active" data-step="1">
+            <div class="step-num">1</div>
+            <span>Datos</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" data-step="2">
+            <div class="step-num">2</div>
+            <span>Envío</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" data-step="3">
+            <div class="step-num">3</div>
+            <span>Pago</span>
+          </div>
+        </div>
+      </div>
+      <div class="checkout-body">
+        <!-- Step 1: Contact -->
+        <div class="checkout-step active" id="step1">
+          <h3>Información de contacto</h3>
+          <form id="contactForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" placeholder="Juan" required />
+              </div>
+              <div class="form-group">
+                <label>Apellido</label>
+                <input type="text" placeholder="García" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input type="email" placeholder="juan@email.com" required />
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="tel" placeholder="+52 55 1234 5678" required />
+            </div>
+            <button type="button" class="btn-primary btn-next" onclick="nextStep(2)">Continuar →</button>
+          </form>
+        </div>
+
+        <!-- Step 2: Shipping -->
+        <div class="checkout-step" id="step2">
+          <h3>Dirección de envío</h3>
+          <form id="shippingForm">
+            <div class="form-group">
+              <label>Calle y número</label>
+              <input type="text" placeholder="Av. Insurgentes 123" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ciudad</label>
+                <input type="text" placeholder="Ciudad de México" required />
+              </div>
+              <div class="form-group">
+                <label>Estado</label>
+                <select required>
+                  <option value="">Selecciona...</option>
+                  <option>Ciudad de México</option>
+                  <option>Jalisco</option>
+                  <option>Nuevo León</option>
+                  <option>Estado de México</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Código Postal</label>
+                <input type="text" placeholder="06600" required />
+              </div>
+              <div class="form-group">
+                <label>País</label>
+                <select required>
+                  <option>México</option>
+                </select>
+              </div>
+            </div>
+            <div class="shipping-options">
+              <h4>Método de envío</h4>
+              <label class="shipping-option selected">
+                <input type="radio" name="shipping" value="free" checked />
+                <div class="shipping-info">
+                  <strong>Envío estándar</strong>
+                  <span>5-7 días hábiles</span>
+                </div>
+                <span class="shipping-price free-label">GRATIS</span>
+              </label>
+              <label class="shipping-option">
+                <input type="radio" name="shipping" value="express" />
+                <div class="shipping-info">
+                  <strong>Envío express</strong>
+                  <span>2-3 días hábiles</span>
+                </div>
+                <span class="shipping-price">$299</span>
+              </label>
+            </div>
+            <div class="step-nav">
+              <button type="button" class="btn-back" onclick="nextStep(1)">← Atrás</button>
+              <button type="button" class="btn-primary btn-next" onclick="nextStep(3)">Continuar →</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 3: Payment -->
+        <div class="checkout-step" id="step3">
+          <h3>Información de pago</h3>
+          <div class="payment-methods">
+            <button class="pay-method active" data-method="card">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Tarjeta
+            </button>
+            <button class="pay-method" data-method="paypal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 11l2-7h6a4 4 0 0 1 4 4 4 4 0 0 1-4 4H9l-1 3H5l2-7z"/></svg>
+              PayPal
+            </button>
+            <button class="pay-method" data-method="oxxo">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              OXXO
+            </button>
+            <button class="pay-method" data-method="transfer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              Transferencia
+            </button>
+          </div>
+
+          <div class="card-form" id="cardForm">
+            <div class="card-preview" id="cardPreview">
+              <div class="card-front">
+                <div class="card-chip"></div>
+                <div class="card-number-display" id="cardNumDisplay">•••• •••• •••• ••••</div>
+                <div class="card-info-row">
+                  <div>
+                    <div class="card-label">Titular</div>
+                    <div class="card-name-display" id="cardNameDisplay">NOMBRE APELLIDO</div>
+                  </div>
+                  <div>
+                    <div class="card-label">Vence</div>
+                    <div class="card-exp-display" id="cardExpDisplay">MM/AA</div>
+                  </div>
+                </div>
+                <div class="card-network"></div>
+              </div>
+            </div>
+            <div class="card-inputs">
+              <div class="form-group">
+                <label>Número de tarjeta</label>
+                <div class="input-with-icon">
+                  <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" class="card-input" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Nombre en la tarjeta</label>
+                <input type="text" id="cardName" placeholder="Como aparece en la tarjeta" class="card-input" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Fecha de vencimiento</label>
+                  <input type="text" id="cardExp" placeholder="MM/AA" maxlength="5" class="card-input" />
+                </div>
+                <div class="form-group">
+                  <label>CVV</label>
+                  <div class="input-with-icon">
+                    <input type="text" id="cardCvv" placeholder="•••" maxlength="4" class="card-input" />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-summary-mini" id="orderSummaryMini">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="secure-badges">
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> SSL 256-bit</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> PCI Compliant</span>
+            <span>🔒 Datos encriptados</span>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-back" onclick="nextStep(2)">← Atrás</button>
+            <button type="button" class="btn-primary btn-pay" id="payBtn" onclick="processPayment()">
+              Pagar ahora
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="success-overlay" id="successModal">
+    <div class="success-content">
+      <div class="success-animation">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+      <h2>¡Pedido confirmado!</h2>
+      <p>Tu pedido ha sido procesado exitosamente. Recibirás un correo de confirmación en breve.</p>
+      <div class="order-number">Pedido #FAGA-<span id="orderNumber"></span></div>
+      <div class="success-delivery">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Entrega estimada: <strong id="deliveryDate"></strong>
+      </div>
+      <button class="btn-primary" onclick="closeSuccess()">Continuar comprando</button>
+    </div>
+  </div>
+
+  <!-- AR MODAL -->
+  <div class="ar-modal-overlay" id="arModal">
+    <div class="ar-modal-content">
+      <button class="ar-modal-close" id="arModalClose">✕</button>
+      <h3>Experiencia de Realidad Aumentada</h3>
+      <div class="ar-viewer-container">
+        <div class="ar-device-check" id="arDeviceCheck">
+          <div class="ar-qr-container">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="4" y="4" width="5" height="5"/><rect x="15" y="4" width="5" height="5"/><rect x="4" y="15" width="5" height="5"/><path d="M14 14h.01M17 14h.01M14 17h.01M17 17h.01M20 14h.01M20 17h.01M20 20h.01M14 20h.01M17 20h.01"/></svg>
+            <p>Escanea con tu teléfono para ver el mueble en AR</p>
+            <div class="ar-model-selector">
+              <h4>Selecciona un producto:</h4>
+              <div class="ar-product-thumbs">
+                <div class="ar-thumb active" data-model="sofa">
+                  <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=80&q=70" alt="Sofá Oslo" />
+                  <span>Sofá Oslo</span>
+                </div>
+                <div class="ar-thumb" data-model="mesa">
+                  <img src="https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=80&q=70" alt="Mesa" />
+                  <span>Mesa Rio</span>
+                </div>
+                <div class="ar-thumb" data-model="silla">
+                  <img src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=80&q=70" alt="Silla" />
+                  <span>Silla Luxe</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/products.js"></script>
+  <script src="js/three-viewer.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
